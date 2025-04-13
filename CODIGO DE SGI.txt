@@ -1,0 +1,2296 @@
+                                                     CONEXION
+
+import pyodbc
+from sqlalchemy import create_engine
+
+server = 'GABRIEL'
+db = 'SGI'
+user = 'sa'
+password = '123456'
+
+try:
+    # Crear engine de SQLAlchemy
+    engine = create_engine(f"mssql+pyodbc://{user}:{password}@{server}/{db}?driver=ODBC+Driver+17+for+SQL+Server")
+
+    # Conexión con pyodbc
+    conexion = pyodbc.connect(
+        f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={db};UID={user};PWD={password}"
+    )
+
+    print("Conexion exitosa")
+
+except Exception as e:
+    print("Error al intentar conectarse:", e)
+
+
+                                              AUTENTIFICADOR
+
+from conexion.conexion import conexion
+import tkinter as tk
+from tkinter import messagebox  # Importa el módulo messagebox de tkinter
+import customtkinter as ctk
+import util.generic as utl
+from forms.form_register import FormRegister
+
+class FormAutentificador:
+        
+
+        def __init__(self, ventana_login):
+            
+            self.ventana_login = ventana_login
+
+            # Crear ventana de registro
+            self.ventana = ctk.CTkToplevel()
+            self.ventana.title("Admin")
+            self.ventana.geometry("250x200")
+            self.ventana.resizable(False, False)
+            utl.centrar_ventana(self.ventana, 250, 200)
+
+            # Asegurar que aparezca sobre la ventana principal
+            self.ventana.transient(ventana_login)  
+            self.ventana.lift()
+            self.ventana.after_idle(self.ventana.lift)
+
+            # Bloquear interacción con la ventana principal hasta cerrar esta
+            self.ventana.grab_set()
+
+            self.ventana.protocol("WM_DELETE_WINDOW", self.cerrar_aplicacion)
+
+            # Usuario
+            etiqueta_usuario = ctk.CTkLabel(self.ventana, text="Usuario:", font=("Segoe UI", 14), text_color="#666", width=40)
+            etiqueta_usuario.pack(anchor="w")
+            self.usuario = ctk.CTkEntry(self.ventana, placeholder_text="Ingrese su usuario", height=10, corner_radius=10, width=40)
+            self.usuario.pack(fill="x", pady=5)
+
+            # Contraseña
+            etiqueta_password = ctk.CTkLabel(self.ventana, text="Contraseña:", font=("Segoe UI", 14), text_color="#666", width=40)
+            etiqueta_password.pack(anchor="w")
+            self.password = ctk.CTkEntry(self.ventana, show="*", placeholder_text="Ingrese su contraseña", height=10, corner_radius=10, width=40)
+            self.password.pack(fill="x", pady=5)
+
+
+            # Botón Registrar
+            aceptar = ctk.CTkButton(self.ventana, text="Aceptar", command=self.verificar, height=15, corner_radius=10, width=50)
+            aceptar.pack(side="left", padx=30, pady=(30, 0))  # Espaciado entre botones
+
+            # Botón Cancelar
+            cancelar = ctk.CTkButton(self.ventana, text="Cancelar", command=self.cancelar, height=15, corner_radius=10, width=50)
+            cancelar.pack(side="right", padx=30, pady=(30, 0))
+
+            self.ventana.mainloop()
+
+        def cerrar_aplicacion(self):
+            """ Cierra completamente la aplicación al cerrar la ventana Home """
+            print("Cerrando toda la aplicación...")
+
+            if self.ventana is not None:
+                self.ventana.quit()  # Detener el loop de Tkinter
+                self.ventana.destroy()  # Cerrar la ventana
+
+            if self.ventana_login is not None:
+                self.ventana_login.quit()
+                self.ventana_login.destroy()
+
+            # Cerrar completamente la aplicación
+            exit(0)  # Terminar el programa 
+
+        def cancelar(self):
+            self.ventana.withdraw()  # Oculta la ventana actual
+            self.ventana_login.deiconify()  # Muestra la ventana de login
+
+        def verificar(self):
+            try:
+                usuario = self.usuario.get()
+                password = self.password.get()
+
+                if usuario == "" or password == "":
+                    messagebox.showwarning("Campos vacios", "Por favor ingreda un nombre y un password")
+                    return
+
+                cursor = conexion.cursor() 
+                try:
+                    validar = "select [user], [password] from Encargados where [user] = ? and [password] = ?;"
+                    cursor.execute(validar, (usuario.lower(), password))
+
+                    resultado = cursor.fetchall()
+
+                    if resultado:
+                        for i in resultado:
+                            self.ventana.grab_release()
+                            self.ventana.withdraw()
+                            self.ventana_login.withdraw()
+                            #self.ventana.destroy()
+                            
+
+                            self.usuario.delete(0, ctk.END)
+                            self.password.delete(0, ctk.END)
+                            
+                            home = FormRegister(self.ventana_login)
+                            #home.ventana.protocol("WM_DELETE_WINDOW", self.mostrar_login)
+                            
+                            
+                    else:
+                        messagebox.showwarning("Datos Incorrectos","El usuario o el password es incorrecto")
+                finally:
+                    cursor.close()
+            except Exception as e:
+                messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
+
+
+                                         FORM_HOME_DESIGNER
+
+import tkinter as tk
+from tkinter import ttk
+import customtkinter as ctk
+from tkinter.font import BOLD
+import util.generic as utl
+
+
+
+
+class FormHomeDesigner:
+
+
+
+        def cerrar_sesion(self):
+                pass
+
+        def cerrar_aplicacion(self):
+                pass
+        
+        def mostrar_frame(self, frame):
+                pass
+
+        def obtener_articulos(self):
+                pass
+
+        def plot_report(self):
+                pass
+
+        def on_articulo_selected(self, articulo_seleccionado):
+                pass
+
+        def redimensionar(self, event):
+                pass
+
+        def filtrar_stock(self, seleccion):
+                pass
+
+        def filtrar_inventario(self, seleccion):
+                pass
+
+        def filtrar_lavado(self, seleccion):
+                pass
+
+        def on_item_selected(self, event):
+                pass
+
+        def on_item_selected_inventario(self, event):
+                pass
+
+        def on_item_selected_lavado(self, event):
+                pass
+
+        def agregar_stock(self):
+                pass
+
+        def eliminar_stock(self):
+                pass
+
+        def limpiar_entry(self):
+                pass
+
+        def agregar_articulo(self):
+                pass
+
+        def agregar_articulo_lavado(self):
+                pass
+
+        def eliminar_registro(self):
+                pass
+
+        def actualizar_registro(self):
+                pass
+
+        def actualizar_registro_lavado(self):
+                pass
+
+        def eliminar_registro_lavado(self):
+                pass
+
+        def limpiar_entry_lavado(self):
+                pass
+
+
+                
+
+        def __init__(self, ventana_login):
+                self.ventana_login = ventana_login
+
+                # Crear ventana Home
+                self.ventana = ctk.CTkToplevel()
+                self.ventana.title("SGI Inventario")
+                self.ventana.geometry("600x650")
+                self.ventana.state("zoomed")  # Iniciar maximizado
+                self.ventana.minsize(800, 800)  # Establecer el tamaño mínimo
+                #self.ventana.resizable(False, False)
+
+                utl.centrar_ventana(self.ventana, 600, 650)
+
+                self.ventana.protocol("WM_DELETE_WINDOW", self.cerrar_aplicacion)
+
+                # Sombra detrás del menú con ancho reducido
+                frame_sombra = ctk.CTkFrame(self.ventana, width=180, fg_color="#2c5aa0")  
+                frame_sombra.pack(side="left", fill="y", expand=False, padx=(0, 5))  # Reducido el padding
+
+                # Canvas para el degradado con ancho controlado
+                self.canvas = tk.Canvas(frame_sombra, width=180, height=600, highlightthickness=0)
+                self.canvas.pack(side="left", fill="y", expand=False)  # No expandir horizontalmente
+
+                # Frame de menú lateral
+                frame_menu = ctk.CTkFrame(
+                        self.canvas, 
+                        width=200, 
+                        fg_color="#3a7ff6",  # Color de fondo
+                        border_width=2,  # Grosor del borde
+                        border_color="#2c5aa0",  # Color del borde
+                        corner_radius=10  # Esquinas redondeadas
+                )
+                frame_menu.pack(side="left", fill="both", expand=False)
+
+                
+
+                
+
+                # Cargar imagen en el menú
+                '''logo = utl.leer_imagen("./imagenes/imssLogo.png", frame_menu)
+                label_logo = ctk.CTkLabel(frame_menu, image=logo, text="")
+                label_logo.pack(pady=20)'''
+                
+
+                # Frame principal (contenedor de los frames)
+                frame_contenedor = ctk.CTkFrame(self.ventana, fg_color="white")
+                frame_contenedor.pack(side="right", fill="both", expand=True)
+
+                # Definir estilos para los labels
+                label_style = {
+                "font": ('Segoe UI', 20, "bold"),  # Fuente más grande y negrita
+                "text_color": "white",  # Color del texto
+                "fg_color": "#1E1E1E",  # Fondo oscuro para contraste
+                "corner_radius": 10,  # Bordes redondeados
+                "height": 50,  # Altura mayor
+                "width": 200,  # Ancho definido para ajustarse al menú
+                "anchor": "center"  # Centrar el texto
+                }
+
+
+
+                # Agregar el encabezado al menú con los mismos estilos
+                ctk.CTkLabel(frame_menu, text="📌 Menú Principal", **label_style).pack(pady=10, padx=10)
+
+                # Definir los diferentes frames de contenido
+                self.frames = {
+                "Tipo de Articulo": ctk.CTkFrame(frame_contenedor, fg_color="#F0F4F8", corner_radius=15, border_width=2, border_color="#D1D9E6"),
+                "frame1": ctk.CTkFrame(frame_contenedor, fg_color="#E3F2FD", corner_radius=15, border_width=2, border_color="#90CAF9"),
+                "frame2": ctk.CTkFrame(frame_contenedor, fg_color="#E8F5E9", corner_radius=15, border_width=2, border_color="#A5D6A7"),
+                "frame3": ctk.CTkFrame(frame_contenedor, fg_color="#FFF3E0", corner_radius=15, border_width=2, border_color="#FFCC80"),
+                "frame4": ctk.CTkFrame(frame_contenedor, fg_color="#FBE9E7", corner_radius=15, border_width=2, border_color="#FFAB91"),
+                }
+
+                # Contenido del frame de inicio
+                #self.crear_formulario_inventario(self.frames["inicio"])
+
+
+
+                # Contenido de cada frame
+                # Aplicar estilos a cada label
+                ctk.CTkLabel(self.frames["Tipo de Articulo"], text="📦 Tipo de Artículos", **label_style).pack(pady=10, padx=10)
+                ctk.CTkLabel(self.frames["frame1"], text="📥 Entrada y salida de Artículos", **label_style).pack(pady=10, padx=10)
+                ctk.CTkLabel(self.frames["frame2"], text="➕ Agregar o Eliminar", **label_style).pack(pady=10, padx=10)
+                ctk.CTkLabel(self.frames["frame3"], text="🧺 Lavandería", **label_style).pack(pady=10, padx=10)
+                ctk.CTkLabel(self.frames["frame4"], text="📊 Reporte de Inventario", **label_style).pack(pady=10, padx=10)
+
+                # Mostrar por defecto el frame de inicio
+                self.mostrar_frame(self.frames["Tipo de Articulo"])
+
+                # Botones del menú lateral (sin "Cerrar sesión")
+                botones = [
+                ("Tipo de Articulo", "Tipo de Articulo"),
+                ("Stock", "frame1"),
+                ("Agregar o Eliminar", "frame2"),
+                ("Lavanderia", "frame3"),
+                ("Reporte de Inventario", "frame4")
+                ]
+
+                # Agregar los botones de navegación
+                for text, frame in botones:
+                        btn = ctk.CTkButton(
+                                frame_menu, text=text, height=40, corner_radius=10, fg_color="white", text_color="black",
+                                hover_color="#0056b3", command=lambda f=frame: self.mostrar_frame(self.frames[f])
+                        )
+                        btn.pack(fill="x", padx=10, pady=5)
+
+                
+                # Botón de cerrar sesión en la parte inferior (solo una vez)
+                btn_cerrar = ctk.CTkButton(
+                        frame_menu, text="Cerrar sesión", height=40, corner_radius=10, fg_color="white", text_color="black",
+                        hover_color="#b30000", command=self.cerrar_sesion
+                        )
+                btn_cerrar.pack(fill="x", padx=10, pady=5, side="bottom")
+
+                                
+                formulario_frame = ctk.CTkFrame(self.frames["Tipo de Articulo"], fg_color="white")
+                formulario_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+                # Crear un frame interno para controlar el tamaño de los labels y entradas
+                form_contenedor = ctk.CTkFrame(formulario_frame, fg_color="white")
+                form_contenedor.pack(pady=10, padx=10, fill="none")  # No expandir para evitar crecimiento excesivo
+
+                self.nombre_articulos = self.obtener_articulos()
+
+                if not self.nombre_articulos:
+                        self.nombre_articulos = ["No hay articulos"]
+
+                # Agregar una opción vacía al inicio
+                self.nombre_articulos.insert(0, "Seleccionar artículo...")
+
+                """Crear formulario para el inventario y agregarlo al frame dado."""
+                # Label y ComboBox para seleccionar el artículo
+                ctk.CTkLabel(form_contenedor, text="Seleccionar Artículo:", font=('Segoe UI', 14), text_color="black").grid(row=0, column=0, sticky="w", pady=20)
+                self.combo_articulo = ctk.CTkOptionMenu(
+                form_contenedor, 
+                values=self.nombre_articulos, 
+                command=self.on_articulo_selected  # Llama a la función cuando cambie la selección
+                )
+                self.combo_articulo.grid(row=0, column=1, pady=20)
+
+                # Labels para los demás campos
+                self.campos = [
+                        ("Código:", "codigo"),
+                        ("Sucursal:", "sucursal"),
+                        ("Cantidad Mínima:", "cantidad_minima"),
+                        ("Cantidad Máxima:", "cantidad_maxima"),
+                        ("Proveedor:", "proveedor"),
+                        ("Categoría:", "categoria"),
+                ]
+
+                # Crear labels y entradas para los campos
+                self.entries = {}
+                for index, (label_text, campo) in enumerate(self.campos, start=1):
+                        ctk.CTkLabel(form_contenedor, text=label_text, font=('Segoe UI', 12), text_color="black").grid(row=index, column=0, sticky="w", pady=(20,5))
+                        entry = ctk.CTkEntry(form_contenedor, width=200)
+                        entry.grid(row=index, column=1, pady=(20, 5), sticky="ew")  # Ajustar pady
+                        entry.configure(state="readonly")  # Hacer la entrada de solo lectura
+                        self.entries [campo]= entry
+
+                # Ajustar el tamaño de las columnas
+                form_contenedor.columnconfigure(1, weight=1)
+
+                # Ajustar tamaño de los frames dinámicamente
+                self.ventana.bind("<Configure>", self.redimensionar)
+
+                """Crea el formulario en frame1 ACTUALIZACION DE STOCK"""
+
+                frame = self.frames["frame1"]
+
+                # Contenedor principal del formulario
+                formulario_frame = ctk.CTkFrame(frame, fg_color="white")
+                formulario_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+                # Frame para filtrar resultados
+                frame_filtrar = ctk.CTkFrame(formulario_frame, fg_color="white")
+                frame_filtrar.pack(pady=5)
+
+                # Label y ComboBox para filtrar artículos
+                ctk.CTkLabel(frame_filtrar, text="Seleccionar artículo:", font=('Segoe UI', 14), text_color="black", height= 10).grid(row=0, column=0, padx=10)
+                
+
+                self.combo_filtro = ctk.CTkOptionMenu(
+                        frame_filtrar, values=["Todos"] + self.obtener_articulos(),
+                        command=self.filtrar_stock
+                )
+                self. combo_filtro.grid(row=0, column=1, padx=10)
+
+                # Label para el filtro por nombre del artículo
+                ctk.CTkLabel(frame_filtrar, text="Nombre del Artículo:", font=('Segoe UI', 12), text_color="black").grid(row=0, column=2, padx=10)
+
+                # Entry para ingresar el nombre del artículo
+                self.entry_filtro_nombre = ctk.CTkEntry(frame_filtrar, width=200)
+                self.entry_filtro_nombre.grid(row=0, column=3, padx=10)
+
+                # Crear un botón para filtrar por nombre
+                btn_buscar= ctk.CTkButton(frame_filtrar, text="Buscar", 
+                                                command=lambda: self.filtrar_por_nombre())
+                btn_buscar.grid(row=0, column=4, padx=10)
+
+                
+
+                # Frame para contener el grid
+                frame_tabla = ctk.CTkFrame(formulario_frame)
+                frame_tabla.pack(pady=10, padx=10, fill="both", expand=True)
+
+                # Estilo de Treeview para líneas divisorias
+                style = ttk.Style()
+                style.theme_use("clam")
+                style.configure("Treeview", rowheight=30, borderwidth=1, relief="solid")
+                style.configure("Treeview.Heading", font=('Arial', 12, 'bold'))
+
+                # Crear Treeview (Grid)
+                columnas = ("Código", "Artículo", "Cantidad", "Ubicación")
+                self.tabla_stock = ttk.Treeview(frame_tabla, columns=columnas, show="headings", height=10, style="Treeview")
+
+                # Definir encabezados
+                for col in columnas:
+                        self.tabla_stock.heading(col, text=col)
+                        self.tabla_stock.column(col, anchor="center")
+
+                self.tabla_stock.pack(fill="both", expand=True)
+
+                # Colores alternos en las filas
+                self.tabla_stock.tag_configure("evenrow", background="#E8E8E8")  # Gris claro
+                self.tabla_stock.tag_configure("oddrow", background="#FFFFFF")   # Blanco
+
+                
+
+                # Vincular el evento de selección
+                self.tabla_stock.bind("<<TreeviewSelect>>", self.on_item_selected)
+
+                
+
+                # Crear un frame para los Labels y Entries
+                frame_inputs = ctk.CTkFrame(formulario_frame, fg_color="white")
+                frame_inputs.pack(pady=10)
+
+                # Label y Entry para Código
+                ctk.CTkLabel(frame_inputs, text="Código:", font=('Segoe UI', 12), text_color="black").grid(row=0, column=0, padx=5, pady=5)
+                self.entry_codigo = ctk.CTkEntry(frame_inputs, width=50)
+                self.entry_codigo.grid(row=0, column=1, padx=5, pady=5)
+
+                # Label y Entry para Cantidad
+                ctk.CTkLabel(frame_inputs, text="Cantidad:", font=('Segoe UI', 12), text_color="black").grid(row=1, column=0, padx=5, pady=5)
+                self.entry_cantidad = ctk.CTkEntry(frame_inputs, width=50)
+                self.entry_cantidad.grid(row=1, column=1, padx=5, pady=5)
+
+                # Botones de Agregar y Eliminar
+                frame_botones = ctk.CTkFrame(formulario_frame, fg_color="white")
+                frame_botones.pack(pady=30)
+
+                btn_agregar = ctk.CTkButton(frame_botones, text="Agregar Stock", 
+                                                command= lambda: self.agregar_stock())
+                btn_agregar.grid(row=0, column=0, padx=100)
+
+                btn_eliminar = ctk.CTkButton(frame_botones, text="Eliminar Stock", 
+                                                command= lambda: self.eliminar_stock())
+                btn_eliminar.grid(row=0, column=1, padx=100)
+
+                """Crea el formulario en frame2 ELIMINAR Y AGREGAR ARTICULOS"""
+
+                frame2 = self.frames["frame2"]
+
+                # Contenedor principal del formulario
+                formulario_frame2 = ctk.CTkFrame(frame2, fg_color="white")
+                formulario_frame2.pack(pady=20, padx=20, fill="both", expand=True)
+
+                # Frame para filtrar resultados
+                frame_filtrar2 = ctk.CTkFrame(formulario_frame2, fg_color="white")
+                frame_filtrar2.pack(pady=5)
+
+                # Label y ComboBox para filtrar artículos
+                ctk.CTkLabel(frame_filtrar2, text="Seleccionar artículo:", font=('Segoe UI', 14), text_color="black", height= 10).grid(row=0, column=0, padx=10)
+                
+
+                self.combo_filtro2 = ctk.CTkOptionMenu(
+                        frame_filtrar2, values=["Todos"] + self.obtener_articulos(),
+                        command=self.filtrar_inventario
+                )
+                self. combo_filtro2.grid(row=0, column=1, padx=10)
+
+                # Label para el filtro por nombre del artículo
+                ctk.CTkLabel(frame_filtrar2, text="Nombre del Artículo:", font=('Segoe UI', 12), text_color="black").grid(row=0, column=2, padx=10)
+
+                # Entry para ingresar el nombre del artículo
+                self.entry_filtro_nombre2 = ctk.CTkEntry(frame_filtrar2, width=200)
+                self.entry_filtro_nombre2.grid(row=0, column=3, padx=10)
+
+                # Crear un botón para filtrar por nombre
+                btn_buscar2= ctk.CTkButton(frame_filtrar2, text="Buscar", 
+                                                command=lambda: self.filtrar_por_nombre_inventario())
+                btn_buscar2.grid(row=0, column=4, padx=10)
+
+                # Frame para contener el grid
+                frame_tabla2 = ctk.CTkFrame(formulario_frame2)
+                frame_tabla2.pack(pady=10, padx=10, fill="both", expand=True)
+
+                # Estilo de Treeview para líneas divisorias
+                style = ttk.Style()
+                style.theme_use("clam")
+                style.configure("Treeview", rowheight=30, borderwidth=1, relief="solid")
+                style.configure("Treeview.Heading", font=('Arial', 12, 'bold'))
+
+                # Crear Treeview (Grid)
+                columnas2 = ("Código", "Artículo", "Sucursal", "Cantidad Minima", "Cantidad Maxima", "Proveedor", "Categoria")
+                self.tabla_stock2 = ttk.Treeview(frame_tabla2, columns=columnas2, show="headings", height=10, style="Treeview")
+
+                # Definir encabezados con ancho fijo
+                ancho_columnas = [80, 150, 120, 100, 130, 130, 130, 100, 120]  # Anchos personalizados
+
+                for col, ancho in zip(columnas2, ancho_columnas):
+                        self.tabla_stock2.heading(col, text=col)
+                        self.tabla_stock2.column(col, width=ancho, anchor="center")
+
+                
+
+                self.tabla_stock2.pack(fill="both", expand=True)
+
+                # Colores alternos en las filas
+                self.tabla_stock2.tag_configure("evenrow", background="#E8E8E8")  # Gris claro
+                self.tabla_stock2.tag_configure("oddrow", background="#FFFFFF")   # Blanco
+
+                # Vincular el evento de selección
+                self.tabla_stock2.bind("<<TreeviewSelect>>", self.on_item_selected_inventario)
+
+                
+
+                # Crear un frame para los Labels y Entries
+                frame_inputs2 = ctk.CTkFrame(formulario_frame2, fg_color="white")
+                frame_inputs2.pack(pady=10)
+
+
+                # Labels para los demás campos
+                self.campos2 = [
+                        ("Código:", "codigo"),
+                        ("Articulo:", "articulo"),
+                        ("Sucursal:", "sucursal"),
+                        ("Cantidad Mínima:", "cantidad_minima"),
+                        ("Cantidad Máxima:", "cantidad_maxima"),
+                        ("Proveedor:", "proveedor"),
+                        ("Categoría:", "categoria"),
+                        ("Ubicacion:", "ubicacion"),
+                ]
+
+                # Número de columnas por fila
+                columnas_por_fila = 4
+
+                # Crear labels y entradas para los campos
+                self.entries2 = {}
+                for index, (label_text, campo) in enumerate(self.campos2):
+                        row_index = index // columnas_por_fila  # Determinar la fila
+                        column_index = (index % columnas_por_fila) * 2  # Determinar la columna
+
+                        # Crear el label
+                        ctk.CTkLabel(frame_inputs2, text=label_text, font=('Segoe UI', 12), text_color="black").grid(
+                                row=row_index, column=column_index, sticky="w", padx=5, pady=(3, 0)
+                        )  
+
+                        # Crear el entry
+                        entry2 = ctk.CTkEntry(frame_inputs2, width=150)
+                        entry2.grid(
+                                row=row_index, column=column_index + 1, padx=5, pady=(3, 0), sticky="ew"
+                        )  
+
+                        self.entries2[campo] = entry2
+
+        
+
+                # Botones de Agregar y Eliminar
+                frame_botones2 = ctk.CTkFrame(formulario_frame2, fg_color="white")
+                frame_botones2.pack(pady=30)
+
+                btn_agregar2 = ctk.CTkButton(frame_botones2, text="Agregar Articulo", 
+                                                command= lambda: self.agregar_articulo())
+                btn_agregar2.grid(row=0, column=0, padx=50)
+
+                btn_actualizar = ctk.CTkButton(frame_botones2, text="Actualizar Articulo", 
+                                                command= lambda: self.actualizar_registro())
+                btn_actualizar.grid(row=0, column=1, padx=50)
+
+                btn_eliminar2= ctk.CTkButton(frame_botones2, text="Eliminar Articulo", 
+                                                command= lambda: self.eliminar_registro())
+                btn_eliminar2.grid(row=0, column=2, padx=50)
+
+                btn_limpiar = ctk.CTkButton(frame_botones2, text="Limpiar", 
+                                                command= lambda: self.limpiar_entry())
+                btn_limpiar.grid(row=0, column=3, padx=50)
+
+
+                """Crea el formulario en frame3 Lavanderia"""
+
+                frame3 = self.frames["frame3"]
+
+                # Contenedor principal del formulario
+                formulario_frame3 = ctk.CTkFrame(frame3, fg_color="white")
+                formulario_frame3.pack(pady=20, padx=20, fill="both", expand=True)
+
+                # Frame para filtrar resultados
+                frame_filtrar3 = ctk.CTkFrame(formulario_frame3, fg_color="white")
+                frame_filtrar3.pack(pady=5)
+
+                # Label y ComboBox para filtrar artículos
+                ctk.CTkLabel(frame_filtrar3, text="Seleccionar artículo:", font=('Segoe UI', 14), text_color="black", height= 10).grid(row=0, column=0, padx=10)
+                
+
+                self.combo_filtro3 = ctk.CTkOptionMenu(
+                        frame_filtrar3, values=["Todos"] + self.obtener_articulos_lavado(),
+                        command=self.filtrar_lavado
+                )
+                self.combo_filtro3.grid(row=0, column=1, padx=10)
+
+                # Label para el filtro por nombre del artículo
+                ctk.CTkLabel(frame_filtrar3, text="Nombre del Artículo:", font=('Segoe UI', 12), text_color="black").grid(row=0, column=2, padx=10)
+
+                # Entry para ingresar el nombre del artículo
+                self.entry_filtro_nombre3 = ctk.CTkEntry(frame_filtrar3, width=200)
+                self.entry_filtro_nombre3.grid(row=0, column=3, padx=10)
+
+                # Crear un botón para filtrar por nombre
+                btn_buscar3= ctk.CTkButton(frame_filtrar3, text="Buscar", 
+                                                command=lambda: self.filtrar_por_nombre_lavado())
+                btn_buscar3.grid(row=0, column=4, padx=10)
+
+                # Frame para contener el grid
+                frame_tabla3 = ctk.CTkFrame(formulario_frame3)
+                frame_tabla3.pack(pady=10, padx=10, fill="both", expand=True)
+
+                # Estilo de Treeview para líneas divisorias
+                style = ttk.Style()
+                style.theme_use("clam")
+                style.configure("Treeview", rowheight=30, borderwidth=1, relief="solid")
+                style.configure("Treeview.Heading", font=('Arial', 12, 'bold'))
+
+                # Crear Treeview (Grid)
+                columnas3 = ("Código", "Artículo", "Cantidad lavada", "Fecha lavado", "Estado prenda", "Proveedor", "Lote", "Estatus")
+                self.tabla_stock3 = ttk.Treeview(frame_tabla3, columns=columnas3, show="headings", height=10, style="Treeview")
+
+                # Definir encabezados con ancho fijo
+                ancho_columnas = [80, 150, 120, 100, 130, 130, 130, 100, 120]  # Anchos personalizados
+
+                for col, ancho in zip(columnas3, ancho_columnas):
+                        self.tabla_stock3.heading(col, text=col)
+                        self.tabla_stock3.column(col, width=ancho, anchor="center")
+
+                
+
+                self.tabla_stock3.pack(fill="both", expand=True)
+
+                # Colores alternos en las filas
+                self.tabla_stock3.tag_configure("evenrow", background="#E8E8E8")  # Gris claro
+                self.tabla_stock3.tag_configure("oddrow", background="#FFFFFF")   # Blanco
+
+                # Vincular el evento de selección
+                self.tabla_stock3.bind("<<TreeviewSelect>>", self.on_item_selected_lavado)
+
+                
+
+                # Crear un frame para los Labels y Entries
+                frame_inputs3 = ctk.CTkFrame(formulario_frame3, fg_color="white")
+                frame_inputs3.pack(pady=10)
+
+
+                # Definición de los campos
+                self.campos3 = [
+                ("Código:", "codigo"),
+                ("Cantidad lavada:", "cantidad_lavada"),
+                ("Fecha lavado:", "fecha_lavado"),
+                ("Estado prenda:", "estado_prenda"),
+                ("Lote:", "lote"),
+                ]
+
+                # Crear labels y entradas en una sola línea
+                self.entries3 = {}
+
+                # Variables para guardar la selección de los estados
+                self.estado_prenda_var = tk.StringVar(value="Sucio")  # Valor por defecto
+                self.estatus_var = tk.StringVar(value="En proceso")  # Nuevo grupo de RadioButtons
+
+                # Contador de columnas para los Entry en la fila 0
+                col_index = 0  
+
+                for label_text, campo in self.campos3:
+                        if campo != "estado_prenda":  # Para todos los campos excepto "Estado prenda"
+                                # Crear el label en la fila 0
+                                ctk.CTkLabel(frame_inputs3, text=label_text, font=('Segoe UI', 12), text_color="black").grid(
+                                row=0, column=col_index, sticky="w", padx=5, pady=(3, 0)
+                                )
+
+                                # Crear el Entry en la fila 0
+                                entry3 = ctk.CTkEntry(frame_inputs3, width=150)
+                                entry3.grid(row=0, column=col_index + 1, padx=5, pady=(3, 0), sticky="ew")
+
+                                # Guardar la referencia del Entry
+                                self.entries3[campo] = entry3
+                                col_index += 2  # Aumentar el índice de la columna
+
+                # ======================== Estado Prenda y Estatus en la misma fila ======================== 
+                ctk.CTkLabel(frame_inputs3, text="Estado prenda:", font=('Segoe UI', 12), text_color="black").grid(
+                row=1, column=0, sticky="w", padx=5, pady=(10, 0)
+                )
+
+                # Crear un solo frame para ambos grupos de RadioButtons
+                frame_radio = ctk.CTkFrame(frame_inputs3, fg_color="transparent")
+                frame_radio.grid(row=1, column=1, columnspan=col_index - 1, padx=5, pady=(10, 0), sticky="ew")
+
+                # ======================== Grupo de "Estado prenda" ========================
+                opciones_estado = ["Sucio", "Limpio", "En revisión"]
+                for i, opcion in enumerate(opciones_estado):
+                        ctk.CTkRadioButton(frame_radio, text=opcion, text_color="black", variable=self.estado_prenda_var, value=opcion).grid(
+                                row=0, column=i, padx=5  #  Se mantiene la separación normal entre botones
+                )
+
+                #  Agregamos una columna vacía para crear separación visual entre los grupos
+                espacio_separacion = len(opciones_estado) + 1  
+                frame_radio.grid_columnconfigure(espacio_separacion, minsize=160)  #  Ajusta este valor para más o menos espacio
+
+                # ======================== Grupo de "Estatus" ========================
+                ctk.CTkLabel(frame_radio, text="Estatus:", font=('Segoe UI', 12), text_color="black").grid(
+                row=0, column=espacio_separacion + 1, padx=5  #  Se alinea el label después de la separación
+                )
+
+                opciones_estatus = ["En proceso", "Terminado"]
+                for i, opcion in enumerate(opciones_estatus):
+                        ctk.CTkRadioButton(frame_radio, text=opcion, text_color="black", variable=self.estatus_var, value=opcion).grid(
+                                row=0, column=espacio_separacion + 2 + i, padx=5  # 🔹 Se colocan los RadioButtons con espacio
+                )
+
+                # Guardar las variables en entries3
+                self.entries3["estado_prenda"] = self.estado_prenda_var
+                self.entries3["estatus"] = self.estatus_var
+
+        
+
+                # Botones de Agregar y Eliminar
+                frame_botones3 = ctk.CTkFrame(formulario_frame3, fg_color="white")
+                frame_botones3.pack(pady=30)
+
+                btn_agregar3 = ctk.CTkButton(frame_botones3, text="Agregar Registro", 
+                                                command= lambda: self.agregar_articulo_lavado())
+                btn_agregar3.grid(row=0, column=0, padx=50)
+
+                btn_actualizar3 = ctk.CTkButton(frame_botones3, text="Actualizar Registro", 
+                                                command= lambda: self.actualizar_registro_lavado())
+                btn_actualizar3.grid(row=0, column=1, padx=50)
+
+                btn_eliminar3= ctk.CTkButton(frame_botones3, text="Eliminar Registro", 
+                                                command= lambda: self.eliminar_registro_lavado())
+                btn_eliminar3.grid(row=0, column=2, padx=50)
+
+                btn_limpiar3 = ctk.CTkButton(frame_botones3, text="Limpiar", 
+                                                command= lambda: self.limpiar_entry_lavado())
+                btn_limpiar3.grid(row=0, column=3, padx=50)
+
+                
+
+                self.ventana.mainloop()
+
+
+                                                                 FORM_HOME
+import tkinter as tk
+from conexion.conexion import conexion, engine
+from tkinter import ttk, messagebox
+import customtkinter as ctk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.patches as mpatches
+import pandas as pd
+from datetime import datetime, date
+from forms.form_home_designer import FormHomeDesigner
+import logging
+
+class FormHome(FormHomeDesigner):
+    def __init__(self, ventana_login):
+        super().__init__(ventana_login)
+
+        # Cargar todos los artículos inicialmente
+        self.cargar_datos_stock()
+        self.cargar_datos_lavado()
+
+        # Vincular el evento de modificación del Entry para el filtro por nombre
+        self.entry_filtro_nombre.bind("<Return>", lambda event: self.filtrar_por_nombre())  # Filtrar al presionar Enter
+        self.combo_filtro.bind("<<ComboboxSelected>>", lambda event: self.filtrar_stock(self.combo_filtro.get()))  # Filtrar al cambiar el ComboBox
+
+    logging.basicConfig(filename='app.log', level=logging.DEBUG)
+
+    def cerrar_aplicacion(self):
+        """Cierra completamente la aplicación al cerrar la ventana Home."""
+        print("Cerrando toda la aplicación...")
+        try:
+            if self.ventana.winfo_exists():
+                self.ventana.withdraw()
+                self.ventana.destroy()
+            # Limpia y cierra otros recursos
+            print("Aplicación cerrada correctamente.")
+        except Exception as e:
+            logging.error(f"Error al cerrar la aplicación: {e}")
+
+    def cerrar_sesion(self):
+        """Pregunta al usuario si desea cerrar sesión antes de ocultar la ventana actual."""
+        respuesta = messagebox.askyesno("Cerrar sesión", "¿Estás seguro de que deseas cerrar sesión?")
+        
+        if respuesta:  # Si el usuario elige "Sí"
+            self.ventana.withdraw()  # Oculta la ventana actual
+            if self.ventana_login is not None:
+                self.ventana_login.deiconify()  # Muestra la ventana de login
+
+    
+
+    def mostrar_frame(self, frame):
+        """ Oculta todos los frames y muestra el seleccionado """
+        for fr in self.frames.values():
+            fr.pack_forget()  # Oculta todos los frames
+        
+        frame.pack(side="right", expand=tk.YES, fill=tk.BOTH)  # Muestra el deseado
+
+        # Cargar los datos de stock solo si el frame de "Tipo de Articulo" está activo
+        if frame == self.frames["frame1"]:
+            # Actualizar el ComboBox de filtro
+            self.entry_filtro_nombre.delete(0, tk.END)  # Limpiar el Entry
+            self.combo_filtro.configure(values=["Todos"] + self.obtener_articulos())
+            self.combo_filtro.set("Todos")  # Establecer el valor en "Todos"
+            self.cargar_datos_stock()  # Cargar datos en el Treeview
+        elif frame == self.frames["frame2"]:
+            # Actualizar el ComboBox de filtro
+            self.entry_filtro_nombre2.delete(0, tk.END)  # Limpiar el Entry
+            self.combo_filtro2.configure(values=["Todos"] + self.obtener_articulos())
+            self.combo_filtro2.set("Todos")  # Establecer el valor en "Todos"
+            self.cargar_datos_inventario()  # Cargar datos en el Treeview
+        elif frame == self.frames["frame3"]:
+            # Actualizar el ComboBox de filtro
+            self.entry_filtro_nombre2.delete(0, tk.END)  # Limpiar el Entry
+            self.combo_filtro2.configure(values=["Todos"] + self.obtener_articulos())
+            self.combo_filtro2.set("Todos")  # Establecer el valor en "Todos"
+            self.cargar_datos_lavado()  # Cargar datos en el Treeview
+        elif frame == self.frames["frame4"]:
+            # Llamar a la función para mostrar el gráfico en frame4
+            self.plot_report()
+
+    def plot_report(self):
+        """Crea y muestra el gráfico en el frame4 con niveles fijos de estado y leyenda ajustada."""
+        try:
+            query = """
+            SELECT 
+                i.codigo,
+                i.articulo,
+                s.cantidad AS stock_actual,
+                i.cantidad_minima,
+                i.cantidad_maxima,
+                CASE 
+                    WHEN s.cantidad = 0 THEN 'Agotado'
+                    WHEN s.cantidad < i.cantidad_minima THEN 'Casi agotado'
+                    WHEN s.cantidad >= i.cantidad_minima AND s.cantidad < (i.cantidad_minima + (i.cantidad_maxima - i.cantidad_minima) * 0.25) THEN 'Bajo'
+                    WHEN s.cantidad >= (i.cantidad_minima + (i.cantidad_maxima - i.cantidad_minima) * 0.25) 
+                        AND s.cantidad < (i.cantidad_minima + (i.cantidad_maxima - i.cantidad_minima) * 0.5) THEN 'Moderado'
+                    ELSE 'Alto'
+                END AS estado
+            FROM Stock s
+            INNER JOIN inventario i ON s.codigo = i.codigo
+            """
+            df = pd.read_sql(query, engine)
+
+            cantidad_minima_global = df['cantidad_minima'].min()
+            cantidad_maxima_global = df['cantidad_maxima'].max()
+
+            nivel_estado = {
+                'Alto': 1.0,
+                'Moderado': 0.7,
+                'Bajo': 0.5,
+                'Casi agotado': 0.3,
+                'Agotado': 0.1
+            }
+
+            df['nivel'] = df['estado'].map(nivel_estado)
+
+            estado_counts = df.pivot(index='codigo', columns='estado', values='stock_actual').fillna(0)
+
+            estados_ordenados = ['Alto', 'Moderado', 'Bajo', 'Casi agotado', 'Agotado']
+
+            for estado in estados_ordenados:
+                if estado not in estado_counts.columns:
+                    estado_counts[estado] = 0  
+
+            fig, ax = plt.subplots(figsize=(12, 6))
+
+            colors = {
+                'Alto': 'green',
+                'Moderado': 'yellow',
+                'Bajo': 'orange',
+                'Casi agotado': 'lightcoral',
+                'Agotado': 'red'
+            }
+
+            estado_counts = estado_counts[estados_ordenados]
+
+            bars = estado_counts.plot(kind='bar', stacked=True, ax=ax, color=[colors[state] for state in estados_ordenados])
+
+            ax.set_title('Estado de Artículos por Código', fontsize=16)
+            ax.set_xlabel('Código de Artículo', fontsize=14)
+            ax.set_ylabel('Cantidad en Stock', fontsize=14)
+            ax.set_xticklabels(estado_counts.index, rotation=45, fontsize=12)
+
+            # Ajustar el eje Y automáticamente según la cantidad máxima global
+            ax.set_ylim(0, cantidad_maxima_global * 1.2)
+
+            # Agregar líneas de cantidad mínima y máxima
+            ax.axhline(y=cantidad_minima_global, color='blue', linestyle='dotted', linewidth=1.5, alpha=0.5)
+            ax.axhline(y=cantidad_maxima_global, color='purple', linestyle='dotted', linewidth=1.5, alpha=0.5)
+
+            # Etiquetas en el eje Y (solo en el lateral)
+            ax.text(ax.get_xlim()[0], cantidad_minima_global, 'Min', ha='left', va='bottom', fontsize=10, color='blue', fontweight='bold')
+            ax.text(ax.get_xlim()[0], cantidad_maxima_global, 'Max', ha='left', va='bottom', fontsize=10, color='purple', fontweight='bold')
+
+            #  Restaurar los números sobre cada barra (cantidad total por código)
+            for i, (codigo, row) in enumerate(estado_counts.iterrows()):
+                total = row.sum()
+                ax.text(i, total / 2, f'{int(total)}', ha='center', va='center', fontsize=12, fontweight='bold', color='black')
+
+            # Corregir la leyenda para que use cuadros de colores en lugar de líneas
+            legend_patches = [mpatches.Patch(color=colors[state], label=state) for state in estados_ordenados]
+            ax.legend(handles=legend_patches, title='Estado', bbox_to_anchor=(1.0, 1), loc='upper left', fontsize=10, title_fontsize=10, frameon=False)
+
+            fig.tight_layout()
+
+            for widget in self.frames["frame4"].winfo_children():
+                widget.destroy()
+
+            canvas = FigureCanvasTkAgg(fig, master=self.frames["frame4"])
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error al cargar los datos:\n{e}")
+
+    def obtener_articulos(self):
+        
+        cursor = conexion.cursor()
+        try:
+            cursor.execute("select articulo from inventario")
+            nombre = [fila[0] for fila in cursor.fetchall()]
+            cursor.close()
+            return nombre
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al optener el articulo: {e}")
+            return []
+        
+    def obtener_articulos_lavado(self):
+        
+        cursor = conexion.cursor()
+        try:
+            cursor.execute("select distinct i.articulo from Lavado l inner join inventario i on l.codigo = i.codigo")
+            nombre = [fila[0] for fila in cursor.fetchall()]
+            cursor.close()
+            return nombre
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al optener el articulo: {e}")
+            return []
+        
+    def on_articulo_selected(self, articulo_seleccionado):
+        if not self.ventana.winfo_exists():  # Verificar si la ventana existe
+            return
+    
+        # Consultar la base de datos para obtener los detalles del artículo seleccionado
+        cursor = conexion.cursor()
+        try:
+            consulta =("SELECT codigo, sucursal, cantidad_minima, cantidad_maxima, proveedor, categoria FROM inventario WHERE articulo = ?;")
+            cursor.execute(consulta, (articulo_seleccionado))
+            resultado = cursor.fetchone()
+
+            if resultado:
+                # Actualizar las entradas con los datos obtenidos
+                for index, (_, campo) in enumerate(self.campos):
+                    self.entries[campo].configure(state="normal")  # Hacer la entrada editable temporalmente
+                    self.entries[campo].delete(0, tk.END)  # Limpiar el campo
+                    self.entries[campo].insert(0, resultado[index])  # Insertar el nuevo valor
+                    self.entries[campo].configure(state="readonly")  # Volver a hacer la entrada de solo lectura
+            else:
+                # Limpiar los campos si no se encuentra el artículo
+                for campo in self.entries:
+                    self.entries[campo].configure(state="normal")
+                    self.entries[campo].delete(0, tk.END)
+                    self.entries[campo].configure(state="readonly")
+
+            cursor.close()
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al obtener los detalles del artículo: {e}")
+
+    def redimensionar(self, event):
+        """ Ajusta los frames cuando cambia el tamaño de la ventana """
+        self.frames["Tipo de Articulo"].update_idletasks()
+        self.frames["frame1"].update_idletasks()
+        self.frames["frame2"].update_idletasks()
+        self.frames["frame3"].update_idletasks()
+        self.frames["frame4"].update_idletasks()
+
+    def cargar_datos_stock(self, filtro=None, texto_filtro=""):
+        """Carga los datos de la tabla Stock en el Treeview"""
+        cursor = conexion.cursor()
+        try:
+            # Comenzar con una consulta base
+            query = "SELECT codigo, articulo, cantidad, ubicacion FROM Stock WHERE 1=1"
+            params = []
+
+            # Añadir filtro para artículo si es necesario
+            if filtro and filtro != "Todos":
+                query += " AND articulo = ?"
+                params.append(filtro)
+
+            # Añadir filtro para texto si es necesario
+            if texto_filtro:
+                query += " AND articulo LIKE ?"
+                params.append(f"{texto_filtro}%")  # Filtrar artículos que empiezan con el texto
+
+            print("Consulta SQL:", query)  # Debug: Imprimir la consulta SQL
+            print("Parámetros:", params)  # Debug: Imprimir los parámetros
+
+            # Ejecutar la consulta
+            cursor.execute(query, params)
+            datos = cursor.fetchall()
+
+            # Limpiar tabla antes de insertar nuevos datos
+            for item in self.tabla_stock.get_children():
+                self.tabla_stock.delete(item)
+
+            # Insertar datos en el Treeview
+            for fila in datos:
+                codigo = fila[0]
+                articulo = fila[1]
+                cantidad = fila[2]
+                ubicacion = fila[3]
+
+                self.tabla_stock.insert("", "end", values=(codigo, articulo, cantidad, ubicacion))
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudieron cargar los datos: {e}")
+        finally:
+            cursor.close()
+
+    def cargar_datos_inventario(self, filtro=None, texto_filtro=""):
+        """Carga los datos de la tabla Stock en el Treeview"""
+        cursor = conexion.cursor()
+        try:
+            query = "SELECT i.codigo, i.articulo, i.sucursal, i.cantidad_minima, i.cantidad_maxima, i.proveedor, i.categoria, s.ubicacion FROM inventario as i inner join stock as s on i.codigo = s.codigo WHERE 1=1"
+            params = []
+
+            if filtro and filtro != "Todos":
+                query += " AND i.articulo = ?"
+                params.append(filtro)
+
+            if texto_filtro:
+                query += " AND i.articulo LIKE ?"
+                params.append(f"{texto_filtro}%")  # Filtrar artículos que empiezan con el texto
+
+            cursor.execute(query, params)
+            datos = cursor.fetchall()
+
+            # Limpiar tabla antes de insertar nuevos datos
+            for item in self.tabla_stock2.get_children():
+                self.tabla_stock2.delete(item)
+
+            # Insertar datos en el Treeview
+            for fila in datos:
+                codigo = fila[0]
+                articulo = fila[1]
+                sucursal = fila[2]
+                cantidad_minima = fila[3]
+                cantidad_maxima = fila[4]
+                proveedor = fila[5]
+                categoria = fila[6]
+                ubicacion = fila[7]
+
+                self.tabla_stock2.insert("", "end", values=(codigo, articulo, sucursal, cantidad_minima, cantidad_maxima, proveedor, categoria, ubicacion ))
+
+                
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudieron cargar los datos: {e}")
+        finally:
+            cursor.close()
+
+    def cargar_datos_lavado(self, filtro=None, texto_filtro=""):
+        """Carga los datos de la tabla Lavado en el Treeview."""
+        cursor = conexion.cursor()
+        try:
+            query = """
+            SELECT l.codigo, i.articulo, l.cantidad_lavada, l.fecha_lavado, l.estado_prenda, 
+                i.proveedor, l.lote, l.estatus 
+            FROM inventario AS i 
+            INNER JOIN Lavado AS l ON i.codigo = l.codigo 
+            WHERE 1=1
+            """
+            params = []
+
+            # Aplicar filtro exacto si existe
+            if filtro and filtro != "Todos":
+                query += " AND i.articulo = ?"
+                params.append(filtro)
+
+            # Aplicar filtro de texto si existe
+            if texto_filtro:
+                query += " AND i.articulo LIKE ?"
+                params.append(f"{texto_filtro}%")  
+
+            # Ordenar los datos
+            query += " ORDER BY l.fecha_lavado DESC"
+
+            print("Consulta SQL:", query)  # Depuración
+            print("Parámetros:", params)  # Depuración
+
+            cursor.execute(query, params)
+            datos = cursor.fetchall()
+
+            # Limpiar tabla antes de insertar nuevos datos
+            self.tabla_stock3.delete(*self.tabla_stock3.get_children())
+
+            # Insertar datos en el Treeview
+            for fila in datos:
+                codigo = fila[0]
+                articulo = fila[1]
+                cantidad_lavada = fila[2]
+                fecha_lavado = fila[3].strftime("%d/%m/%Y") if isinstance(fila[3], date) else fila[3]
+                estado_prenda = fila[4]
+                proveedor = fila[5]
+                lote = fila[6]
+                estatus = fila[7]
+
+                self.tabla_stock3.insert("", "end", values=(codigo, articulo, cantidad_lavada, fecha_lavado, estado_prenda, proveedor, lote, estatus))
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudieron cargar los datos: {e}")
+        finally:
+            cursor.close()
+
+
+    def filtrar_por_nombre(self):
+        """Filtra los artículos en la tabla Stock según el texto en entry_filtro_nombre"""
+        nombre_filtro = self.entry_filtro_nombre.get().strip() 
+        #nombre_filtro2 = self.entry_filtro_nombre2.get().strip()  # Obtener el texto del Entry y quitar espacios
+        #nombre_filtro3 = self.entry_filtro_nombre3.get().strip() 
+
+        # Establecer el ComboBox en "Todos"
+        self.combo_filtro.set("Todos")
+        #self.combo_filtro2.set("Todos")
+        #self.combo_filtro3.set("Todos")
+
+        # Llama a cargar_datos_stock con el filtro "Todos" y el nombre ingresado
+        self.cargar_datos_stock(filtro=None, texto_filtro=nombre_filtro)
+        #self.cargar_datos_inventario(filtro=None, texto_filtro=nombre_filtro2)  # Asegúrate de no incluir 'self'
+        #self.cargar_datos_lavado(filtro=None, texto_filtro=nombre_filtro3)  
+
+    def filtrar_por_nombre_inventario(self):
+        """Filtra los artículos en la tabla Stock según el texto en entry_filtro_nombre"""
+        
+        nombre_filtro2 = self.entry_filtro_nombre2.get().strip()  # Obtener el texto del Entry y quitar espacios
+        #nombre_filtro3 = self.entry_filtro_nombre3.get().strip() 
+
+        # Establecer el ComboBox en "Todos"
+        
+        self.combo_filtro2.set("Todos")
+        #self.combo_filtro3.set("Todos")
+
+        # Llama a cargar_datos_stock con el filtro "Todos" y el nombre ingresado
+        
+        self.cargar_datos_inventario(filtro=None, texto_filtro=nombre_filtro2)  # Asegúrate de no incluir 'self'
+        #self.cargar_datos_lavado(filtro=None, texto_filtro=nombre_filtro3)
+
+    def filtrar_por_nombre_lavado(self):
+        """Filtra los artículos en la tabla Stock según el texto en entry_filtro_nombre"""
+        
+        
+        nombre_filtro3 = self.entry_filtro_nombre3.get().strip() 
+
+        # Establecer el ComboBox en "Todos"
+        
+        
+        self.combo_filtro3.set("Todos")
+
+        # Llama a cargar_datos_stock con el filtro "Todos" y el nombre ingresado
+        
+        
+        self.cargar_datos_lavado(filtro=None, texto_filtro=nombre_filtro3)
+
+    def filtrar_stock(self, seleccion):
+        """Filtra los artículos en la tabla Stock según el ComboBox y muestra los valores del primer registro filtrado.
+        Si se selecciona 'Todos', se limpian los Entry."""
+        
+        # Limpiar los Entry de búsqueda
+        self.entry_filtro_nombre.delete(0, tk.END)
+        #self.entry_filtro_nombre2.delete(0, tk.END)
+        #self.entry_filtro_nombre3.delete(0, tk.END)
+
+        # Si se selecciona "Todos", limpiar los campos y cargar todos los registros
+        if seleccion == "Todos":
+            self.cargar_datos_stock()  # Cargar sin filtro
+            #self.cargar_datos_inventario()  # Cargar sin filtro
+            #self.cargar_datos_lavado()
+            
+            # Limpiar los Entry en entries2
+            for campo in self.entries2:
+                widget = self.entries2.get(campo)  # Obtener el widget si existe
+                if isinstance(widget, ctk.CTkEntry):
+                    widget.delete(0, tk.END)  # Limpiar el Entry
+            return  # Salir de la función para evitar el resto del código
+
+        # Cargar los datos filtrados en ambas tablas
+        self.cargar_datos_stock(filtro=seleccion)
+        #self.cargar_datos_inventario(filtro=seleccion)
+        #self.cargar_datos_lavado(filtro=seleccion)
+
+        # Obtener los elementos en tabla_stock después de filtrar
+        items = self.tabla_stock.get_children()
+        if items:
+            self.tabla_stock.selection_set(items[0])
+            self.on_item_selected(None)  # Llamar manualmente para llenar los campos
+        else:
+            self.entry_codigo.delete(0, tk.END)
+            self.entry_cantidad.delete(0, tk.END)
+
+        # Obtener los elementos en tabla_stock2 después de filtrar
+        '''items2 = self.tabla_stock2.get_children()
+        # Si hay registros, seleccionar el primero y llenar los Entries
+        if items2:
+            self.tabla_stock2.selection_set(items2[0])  # Seleccionar el primer ítem
+            self.on_item_selected_inventario(None)  # Llamar manualmente para llenar los campos
+        else:
+            # Si no hay registros, limpiar los campos en entries2
+            for campo in self.entries2:
+                widget = self.entries2.get(campo)  # Obtener el widget si existe
+                if isinstance(widget, ctk.CTkEntry):
+                    widget.delete(0, tk.END)  # Limpiar el Entry
+
+        # Obtener los elementos en tabla_stock3 después de filtrar
+        items3 = self.tabla_stock3.get_children()
+        # Si hay registros, seleccionar el primero y llenar los Entries
+        if items3:
+            self.tabla_stock3.selection_set(items3[0])  # Seleccionar el primer ítem
+            self.on_item_selected_lavado(None)  # Llamar manualmente para llenar los campos
+        else:
+            # Si no hay registros, limpiar los campos en entries3
+            for campo in self.entries3:
+                widget = self.entries3.get(campo)  # Obtener el widget si existe
+                if isinstance(widget, ctk.CTkEntry):
+                    widget.delete(0, tk.END)  # Limpiar el Entry'''
+        
+    def filtrar_inventario(self, seleccion):
+        """Filtra los artículos en la tabla Inventario según el ComboBox y muestra los valores del primer registro filtrado.
+        Si se selecciona 'Todos', se limpian los Entry."""
+        
+        # Limpiar los Entry de búsqueda
+        self.entry_filtro_nombre2.delete(0, tk.END)
+
+        # Si se selecciona "Todos", limpiar los campos y cargar todos los registros
+        if seleccion == "Todos":
+            self.cargar_datos_inventario()  # Cargar sin filtro
+            
+            # Limpiar los Entry en entries2
+            for campo in self.entries2:
+                widget = self.entries2.get(campo)  # Obtener el widget si existe
+                if isinstance(widget, ctk.CTkEntry):
+                    widget.delete(0, tk.END)  # Limpiar el Entry
+            return  # Salir de la función para evitar el resto del código
+
+        # Cargar los datos filtrados en la tabla Inventario
+        self.cargar_datos_inventario(filtro=seleccion)
+
+        # Obtener los elementos en tabla_stock2 después de filtrar
+        items2 = self.tabla_stock2.get_children()
+        
+        # Si hay registros, seleccionar el primero y llenar los Entries
+        if items2:
+            self.tabla_stock2.selection_set(items2[0])  # Seleccionar el primer ítem
+            self.on_item_selected_inventario(None)  # Llamar manualmente para llenar los campos
+        else:
+            # Si no hay registros, limpiar los campos en entries2
+            for campo in self.entries2:
+                widget = self.entries2.get(campo)  # Obtener el widget si existe
+                if isinstance(widget, ctk.CTkEntry):
+                    widget.delete(0, tk.END)  # Limpiar el Entry
+
+    def filtrar_lavado(self, seleccion):
+        """Filtra los artículos en la tabla Lavado según el ComboBox y muestra los valores del primer registro filtrado.
+        Si se selecciona 'Todos', se limpian los Entry."""
+        
+        # Limpiar los Entry de búsqueda
+        self.entry_filtro_nombre3.delete(0, tk.END)
+
+        # Si se selecciona "Todos", limpiar los campos y cargar todos los registros
+        if seleccion == "Todos":
+            self.cargar_datos_lavado()  # Cargar sin filtro
+            
+            # Limpiar los Entry en entries3
+            for campo in self.entries3:
+                widget = self.entries3.get(campo)  # Obtener el widget si existe
+                if isinstance(widget, ctk.CTkEntry):
+                    widget.delete(0, tk.END)  # Limpiar el Entry
+            return  # Salir de la función para evitar el resto del código
+
+        # Cargar los datos filtrados en la tabla Lavado
+        self.cargar_datos_lavado(filtro=seleccion)
+
+        # Obtener los elementos en tabla_stock3 después de filtrar
+        items3 = self.tabla_stock3.get_children()
+        
+        # Si hay registros, seleccionar el primero y llenar los Entries
+        if items3:
+            self.tabla_stock3.selection_set(items3[0])  # Seleccionar el primer ítem
+            self.on_item_selected_lavado(None)  # Llamar manualmente para llenar los campos
+        else:
+            # Si no hay registros, limpiar los campos en entries3
+            for campo in self.entries3:
+                widget = self.entries3.get(campo)  # Obtener el widget si existe
+                if isinstance(widget, ctk.CTkEntry):
+                    widget.delete(0, tk.END)  # Limpiar el Entry
+
+    def limpiar_entry(self):
+        for campo in self.entries2:
+                self.entries2[campo].delete(0, tk.END)  # Limpiar los Entry
+        self.entry_filtro_nombre2.delete(0, tk.END)
+
+
+    def on_item_selected(self, event):
+        """Actualiza los Entry con los datos del artículo seleccionado en el Treeview."""
+        selected_items = self.tabla_stock.selection()
+        
+
+        # Limpiar el Entry de código antes de llenar
+        self.entry_codigo.delete(0, tk.END)
+
+        # Verifica si hay un ítem seleccionado en la tabla de stock
+        if len(selected_items) == 1:
+            item_values = self.tabla_stock.item(selected_items[0])['values']
+            if item_values:
+                codigo = item_values[0]
+                self.entry_codigo.insert(0, codigo)
+
+
+    def on_item_selected_inventario(self, event):
+        """Actualiza los Entry con los datos del artículo seleccionado en el Treeview.
+        Si se seleccionan múltiples filas, limpia los campos."""
+        selected_items2 = self.tabla_stock2.selection()
+        print(f"Elementos seleccionados en tabla_stock2: {selected_items2}")  # Debug
+
+        # Si hay más de un ítem seleccionado, limpiar los campos y salir
+        if len(selected_items2) != 1:
+            print("Se seleccionaron múltiples ítems o ninguno. Limpiando campos.")  # Debug
+            for campo in self.entries2:
+                self.entries2[campo].delete(0, tk.END)
+            return  # Salir de la función
+
+        # Si solo hay un ítem seleccionado, actualizar los campos con los valores
+        item_values2 = self.tabla_stock2.item(selected_items2[0])['values']
+        print(f"Valores seleccionados en tabla_stock2: {item_values2}")  # Debug
+        if item_values2:
+            for col_index, (label_text, campo) in enumerate(self.campos2):
+                if col_index < len(item_values2):
+                    print(f"Insertando {item_values2[col_index]} en {campo}")  # Debug
+                    self.entries2[campo].delete(0, tk.END)
+                    self.entries2[campo].insert(0, item_values2[col_index])  # Insertar el valor correspondiente
+
+    def on_item_selected_lavado(self, event):
+        """Actualiza los Entry con los datos del artículo seleccionado en el Treeview.
+        Si se seleccionan múltiples filas, limpia los campos."""
+        selected_items3 = self.tabla_stock3.selection()
+        print(f"Elementos seleccionados en tabla_stock3: {selected_items3}")  # Debug
+
+        # Si hay más de un ítem seleccionado, limpiar los campos y salir
+        if len(selected_items3) != 1:
+            print("Se seleccionaron múltiples ítems o ninguno. Limpiando campos.")  # Debug
+            for campo in self.entries3:
+                widget = self.entries3.get(campo)  # Obtener el widget si existe
+                if isinstance(widget, ctk.CTkEntry):  
+                    widget.delete(0, tk.END)  # Limpiar el Entry
+            
+            # Restablecer los valores de los RadioButtons a su estado por defecto
+            self.estado_prenda_var.set("Sucio")
+            self.estatus_var.set("En proceso")
+            return  # Salir de la función
+
+        # Si solo hay un ítem seleccionado, actualizar los campos con los valores
+        item_values3 = self.tabla_stock3.item(selected_items3[0])['values']
+        print(f"Valores seleccionados en tabla_stock3: {item_values3}")  # Debug
+
+        if item_values3:
+            # Mapeo de índices a los campos que se actualizarán
+            indices_interesantes = {
+                "codigo": 0,          # Código
+                "cantidad_lavada": 2, # Cantidad lavada
+                "fecha_lavado": 3,    # Fecha lavado
+                "estado_prenda": 4,   # Estado prenda
+                "lote": 6,            # Lote
+                "estatus": 7          # Estatus (Radiobutton)
+            }
+
+            for campo, index in indices_interesantes.items():
+                if index < len(item_values3):  # Verificar que el índice esté dentro de los valores
+                    valor = item_values3[index]
+                    widget = self.entries3.get(campo)  # Obtener el widget si existe
+                    if widget and isinstance(widget, ctk.CTkEntry):
+                        widget.delete(0, tk.END)
+                        widget.insert(0, valor)  # Insertar el valor correspondiente
+                    elif campo == "estado_prenda":  
+                        self.estado_prenda_var.set(valor)  # Asignar el valor al StringVar
+                    elif campo == "estatus":  
+                        self.estatus_var.set(valor)  # Asignar el valor al StringVar de los RadioButtons
+        
+            
+
+    def agregar_stock(self):
+        """Agrega stock al artículo seleccionado sin exceder la cantidad máxima permitida."""
+    
+        codigo_articulo = self.entry_codigo.get().strip()
+        cantidad_a_agregar = self.entry_cantidad.get().strip()
+
+        if not codigo_articulo:
+            messagebox.showwarning("Advertencia", "Por favor, selecciona un artículo para agregar stock.")
+            return
+
+        if not cantidad_a_agregar.isdigit() or int(cantidad_a_agregar) <= 0:
+            messagebox.showerror("Error", "La cantidad a agregar debe ser un número entero positivo.")
+            return
+
+        cantidad_a_agregar = int(cantidad_a_agregar)
+
+        cursor = conexion.cursor()
+        try:
+            # Obtener la cantidad actual y la cantidad máxima permitida
+            consulta = """
+            SELECT s.cantidad AS stock_actual, i.cantidad_maxima 
+            FROM Stock s
+            INNER JOIN inventario i ON s.codigo = i.codigo
+            WHERE s.codigo = ?
+            """
+            cursor.execute(consulta, (codigo_articulo,))
+            resultado = cursor.fetchone()
+
+            if not resultado:
+                messagebox.showerror("Error", "No se encontró el artículo en la base de datos.")
+                return
+
+            stock_actual, cantidad_maxima = resultado
+
+            # Verificar si la cantidad agregada supera el límite
+            if stock_actual + cantidad_a_agregar > cantidad_maxima:
+                messagebox.showwarning("Advertencia", 
+                    f"No puedes agregar {cantidad_a_agregar} unidades.\n"
+                    f"Stock actual: {stock_actual}\n"
+                    f"Cantidad máxima permitida: {cantidad_maxima}")
+                return
+
+            # Preguntar al usuario si está seguro de agregar el stock
+            respuesta = messagebox.askyesno("Confirmar", 
+                f"¿Estás seguro de que deseas agregar {cantidad_a_agregar} unidades al artículo {codigo_articulo}?")
+            if not respuesta:
+                return  # Si el usuario selecciona "No", salir de la función
+
+            # Actualizar la cantidad del artículo en la base de datos
+            consulta = "UPDATE Stock SET cantidad = cantidad + ? WHERE codigo = ?"
+            cursor.execute(consulta, (cantidad_a_agregar, codigo_articulo))
+            conexion.commit()
+
+            messagebox.showinfo("Éxito", f"Se agregaron {cantidad_a_agregar} unidades al artículo {codigo_articulo}.")
+
+            # Recargar los datos en el Treeview
+            self.cargar_datos_inventario()
+            self.filtrar_por_nombre()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo agregar el stock para el artículo {codigo_articulo}: {e}")
+            
+        finally:
+            cursor.close()
+
+    def eliminar_stock(self):
+        """Elimina stock del artículo seleccionado."""
+        codigo_articulo = self.entry_codigo.get().strip()
+        cantidad_a_eliminar = self.entry_cantidad.get().strip()
+
+        if not codigo_articulo:
+            messagebox.showwarning("Advertencia", "Por favor, selecciona un artículo para eliminar stock.")
+            return
+
+        if not cantidad_a_eliminar.isdigit():
+            messagebox.showerror("Error", "La cantidad a eliminar debe ser un número entero.")
+            return
+
+        cantidad_a_eliminar = int(cantidad_a_eliminar)
+
+        # Preguntar al usuario si está seguro de eliminar el stock
+        respuesta = messagebox.askyesno("Confirmar", f"¿Estás seguro de que deseas eliminar {cantidad_a_eliminar} unidades del artículo {codigo_articulo}?")
+        if not respuesta:
+            return  # Si el usuario selecciona "No", salir de la función
+
+        cursor = conexion.cursor()
+        try:
+            # Verificar la cantidad actual en el stock
+            consulta = "SELECT cantidad FROM Stock WHERE codigo = ?"
+            cursor.execute(consulta, (codigo_articulo,))
+            resultado = cursor.fetchone()
+
+            if resultado:
+                cantidad_actual = resultado[0]
+                if cantidad_a_eliminar > cantidad_actual:
+                    messagebox.showwarning("Advertencia", "No se puede eliminar más stock del que hay disponible.")
+                    return
+
+                # Actualizar la cantidad del artículo en la base de datos
+                consulta = "UPDATE Stock SET cantidad = cantidad - ? WHERE codigo = ?"
+                cursor.execute(consulta, (cantidad_a_eliminar, codigo_articulo))
+                conexion.commit()
+
+                
+                messagebox.showinfo("Éxito", f"Se eliminaron {cantidad_a_eliminar} unidades del artículo {codigo_articulo}.")
+
+                # Recargar los datos en el Treeview
+                #self.cargar_datos_stock()
+                self.filtrar_por_nombre()
+
+            else:
+                messagebox.showwarning("Advertencia", "No se encontró el artículo seleccionado.")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo eliminar el stock: {e}")
+        finally:
+            cursor.close()
+
+    def agregar_articulo(self):
+        # Obtener valores de los entries
+        codigo = self.entries2["codigo"].get()
+        articulo = self.entries2["articulo"].get()
+        sucursal = self.entries2["sucursal"].get()
+        cantidad_minima = self.entries2["cantidad_minima"].get()
+        cantidad_maxima = self.entries2["cantidad_maxima"].get()
+        proveedor = self.entries2["proveedor"].get()
+        categoria = self.entries2["categoria"].get()
+        ubicacion = self.entries2["ubicacion"].get()
+
+        cursor = conexion.cursor()
+        try:
+            # Insertar en la tabla inventario
+            insertar_valores = """INSERT INTO inventario (codigo, articulo, sucursal, cantidad_minima, cantidad_maxima, proveedor, categoria) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?);"""
+            cursor.execute(insertar_valores, (codigo, articulo, sucursal, cantidad_minima, cantidad_maxima, proveedor, categoria))
+            print("Registro agregado en inventario.")
+
+            # Insertar en la tabla Stock
+            insertar_stock = """INSERT INTO Stock (codigo, articulo, cantidad, ubicacion) 
+                                VALUES (?, ?, ?, ?);"""
+            cursor.execute(insertar_stock, (codigo, articulo, 0, ubicacion))  # Asignamos 0 a la cantidad y 'Almacén A' como ubicación
+            print("Registro agregado en Stock.")
+
+            # Insertar en la tabla GestionInventarios
+            insertar_gestion = """INSERT INTO GestionInventarios (codigo, stock_actual, rotacion_inventario, estado, alerta, fecha_actualizacion, fecha_ultima_entrada, proveedor) 
+                                VALUES (?, ?, ?, ?, ?, GETDATE(), GETDATE(), ?);"""
+            cursor.execute(insertar_gestion, (codigo, 0, 0.0, 'agotado', 'agotado', proveedor))
+            print("Registro agregado en GestionInventarios.")
+
+            # Confirmar la inserción
+            conexion.commit()  # Confirmar la inserción sin transacción
+            messagebox.showinfo("Éxito", "Registro agregado exitosamente en inventario, stock y gestión de inventarios.")
+            self.cargar_datos_inventario()
+
+        except Exception as e:
+            # Manejar el error
+            conexion.rollback()  # Revertir si hay un error
+            messagebox.showerror("Error", f"Ocurrió un error: {str(e)}")
+            print("Error:", str(e))
+
+        finally:
+            # Cerrar el cursor
+            cursor.close()
+            print("Cursor cerrado.")
+
+    def agregar_articulo_lavado(self):
+        # Obtener los valores de los Entries
+        codigo = self.entries3["codigo"].get().strip()
+        cantidad_lavada = self.entries3["cantidad_lavada"].get().strip()
+        fecha_lavado = self.entries3["fecha_lavado"].get().strip()
+        estado_prenda = self.estado_prenda_var.get().strip()  # Obtener el valor del RadioButton
+        lote = self.entries3["lote"].get().strip()
+        estatus = self.estatus_var.get().strip()  # Obtener el valor del RadioButton
+
+        cursor = conexion.cursor()
+        try:
+            # Validar que los campos no estén vacíos
+            if not codigo or not cantidad_lavada or not fecha_lavado or not estado_prenda or not lote or not estatus:
+                messagebox.showerror("Error", "Todos los campos son obligatorios.")
+                return
+
+            cantidad_lavada = int(cantidad_lavada)  # Convertir a número
+
+            # Verificar si el código existe en la tabla inventario
+            consulta_existencia = "SELECT COUNT(*) FROM inventario WHERE Codigo = ?"
+            cursor.execute(consulta_existencia, (codigo,))
+            existe = cursor.fetchone()[0]
+
+            if existe == 0:
+                messagebox.showerror("Error", "Código no existe. Favor de agregar un código válido.")
+                return
+
+            # Obtener la cantidad disponible en Stock para el código
+            consulta_stock = "SELECT Cantidad FROM Stock WHERE Codigo = ?"
+            cursor.execute(consulta_stock, (codigo,))
+            resultado_stock = cursor.fetchone()
+
+            if not resultado_stock:
+                messagebox.showerror("Error", "No hay stock registrado para este código.")
+                return
+
+            cantidad_disponible = resultado_stock[0]  # Cantidad actual en stock
+
+            # Obtener la suma de todas las cantidades lavadas previamente del mismo código
+            consulta_lavado = "SELECT COALESCE(SUM(cantidad_lavada), 0) FROM lavado WHERE Codigo = ? and estatus = 'En proceso'"
+            cursor.execute(consulta_lavado, (codigo,))
+            cantidad_lavada_total = cursor.fetchone()[0]
+
+            # Calcular la nueva cantidad lavada si se inserta el nuevo registro
+            nueva_cantidad_total = cantidad_lavada_total + cantidad_lavada
+
+            # Validar si la nueva cantidad excede la cantidad disponible en Stock
+            if nueva_cantidad_total > cantidad_disponible:
+                messagebox.showerror("Error", f"La cantidad lavada total ({nueva_cantidad_total}) supera la cantidad en Stock ({cantidad_disponible}).")
+                return
+
+            # Convertir la fecha al formato correcto antes de insertarla en la base de datos
+            try:
+                fecha_convertida = datetime.strptime(fecha_lavado, "%d/%m/%Y").strftime("%Y-%m-%d")  # Formato SQL (YYYY-MM-DD)
+            except ValueError:
+                messagebox.showerror("Error", "Formato de fecha incorrecto. Use DD/MM/YYYY.")
+                return
+
+            # Insertar el registro en la tabla lavado
+            insertar_lavado = """INSERT INTO lavado (Codigo, cantidad_lavada, fecha_lavado, estado_prenda, lote, estatus) 
+                                VALUES (?, ?, ?, ?, ?, ?);"""
+            cursor.execute(insertar_lavado, (codigo, cantidad_lavada, fecha_convertida, estado_prenda, lote, estatus))
+
+            # Confirmar la inserción
+            conexion.commit()
+            messagebox.showinfo("Éxito", "Registro agregado exitosamente.")
+
+            self.cargar_datos_lavado()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error al insertar el registro:\n{e}")
+
+    def eliminar_registro(self):
+        codigo = self.entries2["codigo"].get()
+        articulo = self.entries2["articulo"].get()
+
+        # Preguntar al usuario si está seguro de eliminar el stock
+        respuesta = messagebox.askyesno("Confirmar", f"¿Estás seguro de que deseas eliminar el articulo {articulo} ?")
+        if not respuesta:
+            return  # Si el usuario selecciona "No", salir de la función
+
+        cursor = conexion.cursor()
+        try:
+            # Insertar en la tabla inventario
+            eliminar_valores = """delete from inventario WHERE codigo = ?;"""
+            cursor.execute(eliminar_valores, (codigo))
+
+            messagebox.showinfo("Éxito", f"Se elimino el articulo {articulo}.")
+
+            self.cargar_datos_inventario()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
+
+        finally:
+                cursor.close()
+    
+    def actualizar_registro(self):
+        """Actualiza un registro en la base de datos basado en el código ingresado."""
+        
+        # Obtener valores de los entries
+        codigo = self.entries2["codigo"].get()
+        articulo = self.entries2["articulo"].get()
+        sucursal = self.entries2["sucursal"].get()
+        cantidad_minima = self.entries2["cantidad_minima"].get()
+        cantidad_maxima = self.entries2["cantidad_maxima"].get()
+        proveedor = self.entries2["proveedor"].get()
+        categoria = self.entries2["categoria"].get()
+        ubicacion = self.entries2["ubicacion"].get()  # Este pertenece a la tabla Stock
+
+        # Preguntar al usuario si está seguro de eliminar el stock
+        respuesta = messagebox.askyesno("Confirmar", f"¿Estás seguro de que deseas actualizar el registro {articulo} ?")
+        if not respuesta:
+            return  # Si el usuario selecciona "No", salir de la función
+
+        cursor = conexion.cursor()
+        try:
+            # Verificar si el código existe antes de actualizar
+            cursor.execute("SELECT COUNT(*) FROM inventario WHERE codigo = ?", (codigo,))
+            existe = cursor.fetchone()[0]
+
+            if existe == 0:
+                messagebox.showerror("Error", "El código no existe en la base de datos.")
+                return
+
+            # Actualizar la tabla Inventario
+            actualizar_inventario = """
+            UPDATE inventario 
+            SET articulo = ?, sucursal = ?, cantidad_minima = ?, 
+                cantidad_maxima = ?, proveedor = ?, categoria = ? 
+            WHERE codigo = ?;
+            """
+            cursor.execute(actualizar_inventario, (articulo, sucursal, cantidad_minima,
+                                                cantidad_maxima, proveedor, categoria, codigo))
+
+            # Actualizar la tabla Stock (solo el campo ubicacion)
+            actualizar_stock = """
+            UPDATE Stock 
+            SET articulo = ?, ubicacion = ? 
+            WHERE codigo = ?;
+            """
+            cursor.execute(actualizar_stock, (articulo, ubicacion, codigo))
+
+            # Confirmar cambios en la base de datos
+            conexion.commit()
+            messagebox.showinfo("Éxito", "Registro actualizado correctamente.")
+
+            self.cargar_datos_inventario()
+
+        except Exception as e:
+            conexion.rollback()  # Revertir cambios en caso de error
+            messagebox.showerror("Error", f"No se pudo actualizar el registro: {e}")
+
+        finally:
+            cursor.close()
+
+    def actualizar_registro_lavado(self):
+        """Actualiza un registro en la base de datos basado en el código ingresado."""
+        
+        # Obtener valores de los entries
+        articulo = self.entries2["articulo"].get()
+        codigo = self.entries3["codigo"].get().strip()
+        cantidad_lavada = self.entries3["cantidad_lavada"].get().strip()
+        fecha_lavado = self.entries3["fecha_lavado"].get().strip()
+        estado_prenda = self.estado_prenda_var.get().strip()  # Obtener el valor del RadioButton
+        lote = self.entries3["lote"].get().strip()
+        estatus = self.estatus_var.get().strip()  # Obtener el valor del RadioButton
+        
+
+        # Preguntar al usuario si está seguro de eliminar el stock
+        respuesta = messagebox.askyesno("Confirmar", f"¿Estás seguro de que deseas actualizar el registro {articulo} ?")
+        if not respuesta:
+            return  # Si el usuario selecciona "No", salir de la función
+
+        cursor = conexion.cursor()
+        try:
+            # Verificar si el código existe antes de actualizar
+            cursor.execute("SELECT COUNT(*) FROM Lavado WHERE codigo = ?", (codigo,))
+            existe = cursor.fetchone()[0]
+
+            if existe == 0:
+                messagebox.showerror("Error", "El código no existe en la base de datos.")
+                return
+            
+            # Convertir la fecha al formato correcto antes de insertarla en la base de datos
+            try:
+                fecha_convertida = datetime.strptime(fecha_lavado, "%d/%m/%Y").strftime("%Y-%m-%d")  # Formato SQL (YYYY-MM-DD)
+            except ValueError:
+                messagebox.showerror("Error", "Formato de fecha incorrecto. Use DD/MM/YYYY.")
+                return
+
+            # Actualizar la tabla Inventario
+            actualizar_inventario = """UPDATE Lavado SET cantidad_lavada = ?, fecha_lavado = ?, estado_prenda = ?, estatus = ? WHERE lote = ?;"""
+
+            cursor.execute(actualizar_inventario, (cantidad_lavada, fecha_convertida, estado_prenda, estatus, lote))
+
+
+            # Confirmar cambios en la base de datos
+            conexion.commit()
+            messagebox.showinfo("Éxito", "Registro actualizado correctamente.")
+
+            self.cargar_datos_lavado()
+
+        except Exception as e:
+            conexion.rollback()  # Revertir cambios en caso de error
+            messagebox.showerror("Error", f"No se pudo actualizar el registro: {e}")
+
+        finally:
+            cursor.close()
+
+    def eliminar_registro_lavado(self):
+
+        # Obtener valores de los entries
+        codigo = self.entries3["codigo"].get().strip()
+        lote = self.entries3["lote"].get().strip()
+
+        # Preguntar al usuario si está seguro de eliminar el stock
+        respuesta = messagebox.askyesno("Confirmar", f"¿Estás seguro de que deseas eliminar el lote {lote} ?")
+        if not respuesta:
+            return  # Si el usuario selecciona "No", salir de la función
+
+        cursor = conexion.cursor()
+        try:
+            # Verificar si el código existe antes de actualizar
+            cursor.execute("SELECT COUNT(*) FROM Lavado WHERE lote = ?", (lote))
+            existe = cursor.fetchone()[0]
+
+            if existe == 0:
+                messagebox.showerror("Error", "El lote no existe en la base de datos.")
+                return
+            
+            # Insertar en la tabla inventario
+            eliminar_valores = """delete from Lavado WHERE lote = ?;"""
+            cursor.execute(eliminar_valores, (lote))
+
+            messagebox.showinfo("Éxito", f"Se elimino el lote {lote}.")
+
+            self.cargar_datos_lavado()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
+
+        finally:
+                cursor.close()
+
+    def limpiar_entry_lavado(self):
+        for campo, widget in self.entries3.items():
+            if isinstance(widget, ctk.CTkEntry):  
+                widget.delete(0, tk.END)  # Limpiar el Entry
+            elif isinstance(widget, tk.StringVar):  
+                widget.set("")  # Limpiar el StringVar
+
+        # También limpiamos el filtro si es un Entry
+        if isinstance(self.entry_filtro_nombre3, ctk.CTkEntry):
+            self.entry_filtro_nombre3.delete(0, tk.END)
+        
+
+                                FORM_LOGIN_DESIGNER
+
+import tkinter as tk
+from tkinter import ttk, PhotoImage
+import customtkinter as ctk
+from tkinter.font import BOLD
+import util.generic as utl
+import os
+import sys
+
+def resource_path(relative_path):
+    """ Retorna la ruta absoluta del recurso, compatible con PyInstaller. """
+    if getattr(sys, 'frozen', False):  # Si está empaquetado con PyInstaller
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")  # Directorio actual en desarrollo
+
+    return os.path.join(base_path, relative_path)
+
+class FormLoginDesigner:
+
+    def verificar(self):
+        pass
+
+    def userRegister(self):
+        pass
+
+    def cerrar_login(self):
+        pass
+
+    def __init__(self):
+        ctk.set_appearance_mode("Dark")  # También puedes usar "dark"
+        ctk.set_default_color_theme("blue")  # Cambiar el color principal
+
+        self.ventana = ctk.CTk()
+        self.ventana.title('Inicio de sesión')
+        self.ventana.geometry('800x500')
+        self.ventana.resizable(False, False)
+
+        # Agregar icono con ruta corregida
+        icono_path = resource_path("imagenes/imssLogo.ico")
+        self.ventana.iconbitmap(icono_path)
+
+        utl.centrar_ventana(self.ventana, 800, 500)
+
+        self.ventana.protocol("WM_DELETE_WINDOW", self.cerrar_login)
+
+
+
+        # Frame izquierdo con logo
+        frame_logo = ctk.CTkFrame(self.ventana, width=300, height=500, fg_color="#3a7ff6")
+        frame_logo.pack(side="left", fill="both", expand=False)
+
+        # Cargar imagen en el frame con ruta corregida
+        logo_path = resource_path("imagenes/imssLogo.png")
+        logo = utl.leer_imagen(logo_path, frame_logo)
+        label_logo = ctk.CTkLabel(frame_logo, image=logo, text="")
+        label_logo.pack(expand=True)
+
+        
+
+        # Frame derecho con formulario
+        frame_form = ctk.CTkFrame(self.ventana)
+        frame_form.pack(side="right", fill="both", expand=True, padx=40, pady=40)
+
+        # Definir estilos para los labels
+        label_style = {
+                "font": ('Segoe UI', 20, "bold"),  # Fuente más grande y negrita
+                "text_color": "white",  # Color del texto
+                "fg_color": "#1E1E1E",  # Fondo oscuro para contraste
+                "corner_radius": 10,  # Bordes redondeados
+                "height": 50,  # Altura mayor
+                "width": 200,  # Ancho definido para ajustarse al menú
+                "anchor": "center"  # Centrar el texto
+                }
+
+        # Título con ícono de inicio de sesión usando un emoji
+        title = ctk.CTkLabel(frame_form, text="🔑 Inicio de sesión", **label_style)
+        title.pack(pady=20)
+
+        # Usuario
+        etiqueta_usuario = ctk.CTkLabel(frame_form, text="Usuario:", font=('Segoe UI', 14))
+        etiqueta_usuario.pack(anchor="w")
+        self.usuario = ctk.CTkEntry(frame_form, placeholder_text="Ingrese su usuario")
+        self.usuario.pack(fill="x", pady=5)
+
+        # Contraseña
+        etiqueta_password = ctk.CTkLabel(frame_form, text="Contraseña:", font=('Segoe UI', 14))
+        etiqueta_password.pack(anchor="w")
+        self.password = ctk.CTkEntry(frame_form, show="*", placeholder_text="Ingrese su contraseña")
+        self.password.pack(fill="x", pady=5)
+
+        # Botón de inicio de sesión
+        inicio = ctk.CTkButton(frame_form, text="Iniciar Sesión", command=self.verificar)
+        inicio.pack(fill="x", pady=10)
+
+        # Botón de registro
+        registro = ctk.CTkButton(frame_form, text="Registrarse", command=self.userRegister, fg_color="gray")
+        registro.pack(fill="x")
+
+        self.ventana.mainloop()
+
+                                                 FORM_LOGIN
+
+from conexion.conexion import conexion
+import tkinter as tk
+from tkinter import ttk, messagebox
+from tkinter.font import BOLD
+import bcrypt
+import util.generic as utl
+from forms.form_master import MasterPanel
+from forms.form_home import FormHome
+from forms.form_login_designer import FormLoginDesigner
+from forms.form_register import FormRegister
+from forms.autentificador import FormAutentificador
+
+
+class FormLogin(FormLoginDesigner):
+
+    def __init__(self):
+        super().__init__()
+        #self.ventana.protocol("WM_DELETE_WINDOW", self.cerrar_login)
+
+    def verificar(self):
+        try:
+            usuario = self.usuario.get()
+            password = self.password.get()
+
+            if usuario == "" or password == "":
+                messagebox.showwarning("Campos vacíos", "Por favor, ingrese un nombre de usuario y una contraseña")
+                return
+
+            cursor = conexion.cursor()
+            try:
+                # 🔹 Buscar solo la contraseña encriptada del usuario ingresado
+                validar = "SELECT [password] FROM Usuarios WHERE [user] = ?;"
+                cursor.execute(validar, (usuario,))
+                resultado = cursor.fetchone()
+
+                if resultado:
+                    hashed_password = resultado[0]  # 🔹 La contraseña en la base de datos
+                    
+                    # 🔹 Comparar la contraseña ingresada con la encriptada
+                    if bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8')):  
+                        self.ventana.withdraw()
+
+                        self.usuario.delete(0, tk.END)
+                        self.password.delete(0, tk.END)
+
+                        home = FormHome(self.ventana)
+                    else:
+                        messagebox.showwarning("Datos Incorrectos", "El usuario o la contraseña son incorrectos")
+                else:
+                    messagebox.showwarning("Datos Incorrectos", "El usuario o la contraseña son incorrectos")
+            finally:
+                cursor.close()
+        except Exception as e:
+            messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
+
+    def mostrar_login(self):
+        self.ventana.deiconify()
+
+    def userRegister(self):
+        # Deshabilitar la ventana de inicio de sesión
+        #self.ventana.withdraw()  # Ocultar la ventana de login
+
+        # Crear la nueva ventana de autenticación
+        FormAutentificador(self.ventana)
+        
+        
+
+        
+
+    def cerrar_login(self):
+        """ Cierra toda la aplicación de forma segura """
+        print("Cerrando la aplicación desde Login...")
+        try:
+            if self.ventana is not None:
+                self.ventana.quit()  # Detener loop de Tkinter
+                self.ventana.destroy()  # Cerrar ventana
+                self.ventana = None  # Evitar referencia a ventana cerrada
+
+    
+            
+
+        except Exception as e:
+            print(f"Error al cerrar la aplicación: {e}")
+
+        # Forzar la terminación del programa
+
+        # Forzar la terminación del programa
+        exit(0)
+        
+                                                          FORM_MASTER
+
+import tkinter as tk
+from tkinter.font import BOLD
+import util.generic as utl
+
+class MasterPanel:
+    def __init__(self):
+        self.ventana = tk.Tk() 
+        self.ventana.title('Master panel')
+        
+        w, h = self.ventana.winfo_screenwidth(), self.ventana.winfo_screenheight()
+        self.ventana.geometry("%dx%d+0+0" % (w, h))
+        self.ventana.config(bg='#fcfcfc')
+        self.ventana.resizable(width=0, height=0)
+
+        logo = utl.leer_imagen("./Imagenes/imssLogo.png", (200, 200))
+
+        label = tk.Label(self.ventana, image=logo, bg='#3a7ff6')
+        label.place(x=0, y=0, relheight=1, relwidth=1)
+
+        self.ventana.mainloop()
+
+                                           FORM_REGISTER_DESIGNER
+
+
+import tkinter as tk
+from tkinter import ttk
+import customtkinter as ctk
+from tkinter.font import BOLD
+import util.generic as utl
+import os
+import sys
+
+def resource_path(relative_path):
+    """ Retorna la ruta absoluta del recurso, compatible con PyInstaller. """
+    if getattr(sys, 'frozen', False):  # Si está empaquetado con PyInstaller
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")  # Directorio actual en desarrollo
+
+    return os.path.join(base_path, relative_path)
+
+class FormRegisterDesigner:
+    def register(self):
+        pass
+
+    def cancelar(self):
+        pass
+
+    def cerrar_aplicacion(self):
+        pass
+
+    def __init__(self, ventana_login):
+        self.ventana_login = ventana_login
+
+        # Crear ventana de registro
+        self.ventana = ctk.CTkToplevel()
+        self.ventana.title("Registrar usuario")
+        self.ventana.geometry("800x650")
+        self.ventana.resizable(False, False)
+
+        # Obtener la ruta del icono
+        icono_path = resource_path("imagenes/imssLogo.ico")
+        print(f"Ruta del icono en FormRegisterDesigner: {icono_path}")  # Verificar la ruta
+
+        # Aplicar el icono con un pequeño retraso
+        self.ventana.after(100, lambda: self.ventana.iconbitmap(icono_path))
+
+        utl.centrar_ventana(self.ventana, 800, 650)
+
+        self.ventana.protocol("WM_DELETE_WINDOW", self.cerrar_aplicacion)
+
+        # Frame izquierdo con logo
+        frame_logo = ctk.CTkFrame(self.ventana, width=300, fg_color="#5F9EA0")
+        frame_logo.pack(side="left", fill="both", expand=False)
+
+        # Cargar imagen en el frame con ruta corregida
+        logo_path = resource_path("imagenes/imssLogo.png")
+        logo = utl.leer_imagen(logo_path, frame_logo)
+        label_logo = ctk.CTkLabel(frame_logo, image=logo, text="")
+        label_logo.pack(expand=True)
+
+        # Frame derecho con formulario
+        frame_form = ctk.CTkFrame(self.ventana, fg_color="white")
+        frame_form.pack(side="right", fill="both", expand=True, padx=40, pady=40)
+
+        # Definir estilos para los labels
+        label_style = {
+                "font": ('Segoe UI', 20, "bold"),  # Fuente más grande y negrita
+                "text_color": "white",  # Color del texto
+                "fg_color": "#1E1E1E",  # Fondo oscuro para contraste
+                "corner_radius": 10,  # Bordes redondeados
+                "height": 50,  # Altura mayor
+                "width": 200,  # Ancho definido para ajustarse al menú
+                "anchor": "center"  # Centrar el texto
+                }
+
+        # Título con ícono de registro usando un emoji
+        title = ctk.CTkLabel(frame_form, text="📝 Registro de Usuario", **label_style)
+        title.pack(pady=10)
+
+        # Nombre
+        etiqueta_nombre = ctk.CTkLabel(frame_form, text="Nombre:", font=("Segoe UI", 14), text_color="#666")
+        etiqueta_nombre.pack(anchor="w")
+        self.nombre = ctk.CTkEntry(frame_form, placeholder_text="Ingrese su nombre", height=40, corner_radius=10)
+        self.nombre.pack(fill="x", pady=5)
+
+        # Apellido
+        etiqueta_apellido = ctk.CTkLabel(frame_form, text="Apellido:", font=("Segoe UI", 14), text_color="#666")
+        etiqueta_apellido.pack(anchor="w")
+        self.apellido = ctk.CTkEntry(frame_form, placeholder_text="Ingrese su apellido", height=40, corner_radius=10)
+        self.apellido.pack(fill="x", pady=5)
+
+        # Usuario
+        etiqueta_usuario = ctk.CTkLabel(frame_form, text="Usuario:", font=("Segoe UI", 14), text_color="#666")
+        etiqueta_usuario.pack(anchor="w")
+        self.usuario = ctk.CTkEntry(frame_form, placeholder_text="Ingrese su usuario", height=40, corner_radius=10)
+        self.usuario.pack(fill="x", pady=5)
+
+        # Contraseña
+        etiqueta_password = ctk.CTkLabel(frame_form, text="Contraseña:", font=("Segoe UI", 14), text_color="#666")
+        etiqueta_password.pack(anchor="w")
+        self.password = ctk.CTkEntry(frame_form, show="*", placeholder_text="Ingrese su contraseña", height=40, corner_radius=10)
+        self.password.pack(fill="x", pady=5)
+
+        # Confirmación de contraseña
+        etiqueta_confirmacion = ctk.CTkLabel(frame_form, text="Confirmar Contraseña:", font=("Segoe UI", 14), text_color="#666")
+        etiqueta_confirmacion.pack(anchor="w")
+        self.confirmacion = ctk.CTkEntry(frame_form, show="*", placeholder_text="Confirme su contraseña", height=40, corner_radius=10)
+        self.confirmacion.pack(fill="x", pady=5)
+
+        # Botón Registrar
+        registrar = ctk.CTkButton(frame_form, text="Registrar", command=self.register, height=40, corner_radius=10, width=120)
+        registrar.pack(side="left", padx=30)  # Espaciado entre botones
+
+        # Botón Cancelar
+        cancelar = ctk.CTkButton(frame_form, text="Cancelar", command=self.cancelar, height=40, corner_radius=10, width=120)
+        cancelar.pack(side="right", padx=30)
+
+        self.ventana.mainloop()
+
+                                                              FORM_REGISTER
+
+from conexion.conexion import conexion
+import re
+import bcrypt
+import os
+import sys
+import tkinter as tk
+from tkinter import ttk, messagebox
+from forms.form_register_designer import FormRegisterDesigner
+
+
+
+class FormRegister(FormRegisterDesigner):
+    def __init__(self, ventana_login):  # Recibe la ventana de login
+        super().__init__(ventana_login)
+        
+        # Se ejecuta la función cuando el usuario intenta cerrar la ventana
+        #self.ventana.protocol("WM_DELETE_WINDOW", self.cerrar_aplicacion)
+        print("Evento de cierre registrado correctamente")
+
+    def validar_password(self, password):
+        """
+        Verifica que el password cumpla con los siguientes requisitos:
+        - Al menos 8 caracteres
+        - Al menos una letra mayúscula
+        - Al menos un carácter especial
+        """
+        regex = r"^(?=.*[A-Z])(?=.*[\W_]).{8,}$"
+        return bool(re.match(regex, password))  # Devuelve True si cumple los requisitos
+        
+
+    def register(self):
+        nombre = self.nombre.get()
+        apellido = self.apellido.get()
+        usuario = self.usuario.get()
+        password = self.password.get()
+        confirmacion = self.confirmacion.get()
+
+        if usuario == "" or password == "" or confirmacion == "":
+            messagebox.showwarning("Campos vacíos", "Por favor, llene todos los campos.")
+            return
+        
+        if not self.validar_password(password):
+            messagebox.showwarning("Contraseña inválida", 
+                                "La contraseña debe tener:\n- Al menos 8 caracteres\n- Una letra mayúscula\n- Un carácter especial")
+            return
+        
+        try:
+            with conexion.cursor() as cursor:
+                #verificar si ya existe un usuario con el mismo nombre y apellido
+                consulta_existente = "Select COUNT(*) FROM Usuarios WHERE [Nombre] = ? and [Apellido] = ? or [user] = ?;"
+                cursor.execute(consulta_existente, (nombre, apellido, usuario))
+                existe = cursor.fetchone()[0] 
+
+                if existe > 0:
+                    messagebox.showwarning("Empleado existente", "El empleado ya existe en la base de datos")
+                    return
+
+                if password == confirmacion:
+
+                    #encriptar password 
+                    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')  # Asegúrate de usar .decode()
+
+                    insertar_valores = "INSERT INTO Usuarios ([Nombre], [Apellido], [user], [password]) VALUES (?, ?, ?, ?);"
+                    cursor.execute(insertar_valores, (nombre, apellido, usuario, hashed_password))
+                    conexion.commit()
+                    messagebox.showinfo("Registro exitoso", "El usuario ha sido registrado.")
+
+                    self.ventana.destroy()
+                    
+                    self.ventana_login.deiconify()
+                    
+
+                else:
+                    messagebox.showwarning("Error", "Las contraseñas no coinciden.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Ha ocurrido un error: {e}")
+
+    def cerrar_aplicacion(self):
+        """ Cierra completamente la aplicación al cerrar la ventana Home """
+        print("Cerrando toda la aplicación...")
+
+        if self.ventana is not None:
+            self.ventana.quit()  # Detener el loop de Tkinter
+            self.ventana.destroy()  # Cerrar la ventana
+
+        if self.ventana_login is not None:
+            self.ventana_login.quit()
+            self.ventana_login.destroy()
+
+        # Cerrar completamente la aplicación
+        exit(0)  # Terminar el programa 
+
+    def cancelar(self):
+        self.ventana.withdraw()  # Oculta la ventana actual
+        self.ventana_login.deiconify()  # Muestra la ventana de login
+    
+
+                                                MAIN.PY
+
+from forms.form_login import FormLogin
+
+FormLogin()
+
+
+
